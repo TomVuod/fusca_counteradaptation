@@ -29,3 +29,42 @@ chi_sq_test(treatment_ = "sanguinea_1", threshold_number = 0, data = aggression_
 
 ```
 
+# Wilcoxon test to examine difference in duration of aggression displayed by agitated F. fusca ants toward alien ant
+
+```{r message = FALSE}
+# Load dataset
+# data("agitation_tests")
+# summarize duration of aggressive behaviour over the experiment
+
+agitation_tests_summary <- group_by(agitation_tests, colony, treatment) %>%
+  summarise(aggression_duration=sum(aggression_duration)) %>% 
+  left_join(distinct(select(agitation_tests, colony, territory)))
+
+# difference in aggression toward F. polyctena between colonies located within and 
+# outside rufa territory
+x<-filter(agitation_tests_summary, treatment=="F. polyctena", territory=="B")$aggression_duration
+y<-filter(agitation_tests_summary, treatment=="F. polyctena", territory=="T")$aggression_duration
+cat(sprintf("Median time of aggression of colonies from within and from outside
+wood ant territory: %f sec., %f sec., respectively", median(y), median(x)))
+wilcox.test(x,y)
+
+# difference in aggression toward F. sanguinea between colonies located within and 
+# outside rufa territory
+x<-filter(agitation_tests_summary, treatment=="F. sanguinea", territory=="B")$aggression_duration
+y<-filter(agitation_tests_summary, treatment=="F. sanguinea", territory=="T")$aggression_duration
+cat(sprintf("Median time of aggression of colonies from within and from outside
+wood ant territory: %f sec., %f sec., respectively", median(y), median(x)))
+wilcox.test(x,y)
+
+# difference in aggression toward F. sanguinea and F. polyctena outside territory
+sang_res <- filter(agitation_tests_summary, treatment=="F. sanguinea", territory=="B") %>%
+  select(colony, aggression_duration)
+polyctena_res <- filter(agitation_tests_summary, treatment=="F. polyctena", territory=="B") %>%
+  select(colony, aggression_duration)
+res <- left_join(sang_res, polyctena_res, by=c("colony"))
+cat(sprintf("Median time of aggression toward F. polyctena and 
+F. sanguinea: %f sec., %f sec., respectively", 
+median(res$aggression_duration.y), 
+median(res$aggression_duration.x)))
+wilcox.test(res$aggression_duration.x, res$aggression_duration.y, paired=TRUE)
+```
