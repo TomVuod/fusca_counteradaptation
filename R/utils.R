@@ -10,6 +10,12 @@ transform_to_sigle_val<-function(data=long_tests_results,column="aggression_num"
   data
 }
 
+# transform character string representing range to numeric variable
+get_extremes<-function(x){
+  library(stringi)
+  as.numeric(stri_split(x,fixed="-")[[1]])
+}
+
 # select random value from a given range
 select_from_range<-function(x){
   x_len=length(x)
@@ -54,9 +60,9 @@ hitherto_number<-function(test_id=NA, time_limit=10, column="aggression_num",
 # perform the chi-square test for the number of colonies in which
 # the number of aggressive F. fusca was greater then threshold value (defaults to 0);
 # the tested factor is location of F. fusca colony relative to red wood ant territory
-chi_sq_test<-function(upper_limit_date="2020-12-31", lower_limit_date="2017-01-01",
+chi_sq_test <- function(upper_limit_date="2020-12-31", lower_limit_date="2017-01-01",
                       treatment_="sanguinea_1", duration=60, threshold_number=0,
-                      data=long_tests_results,...){
+                      data, ...){
   filtered_data <- filter(data,date < as.Date(upper_limit_date),
                         date > as.Date(lower_limit_date), treatment==treatment_)
   filtered_data <- transform_to_sigle_val(data=filtered_data,...)
@@ -65,15 +71,13 @@ chi_sq_test<-function(upper_limit_date="2020-12-31", lower_limit_date="2017-01-0
     aggression_presence <- rbind(aggression_presence,
                                process_test_data(test_id = test_id, data = filtered_data,
                                                  duration = duration,...))
-
   }
   test_data <- data.frame()
-  aggression_presence<-aggression_presence[is.finite(aggression_presence$ant_number),]
-
+  aggression_presence <- aggression_presence[is.finite(aggression_presence$ant_number), ]
   aggression_presence[,"ant_number"] <- aggression_presence[,"ant_number"] > threshold_number
   test_data <- table(aggression_presence[,1:2])[,c("B","T")]
   if(nrow(test_data) == 1) stop("All or none data records pass threshold")
-  rownames(tst_data)<-c("threshold number not passed", "threshold number passed")
+  rownames(test_data) <-c ("threshold number not passed", "threshold number passed")
   print(test_data)
   chisq.test(test_data)
 }
