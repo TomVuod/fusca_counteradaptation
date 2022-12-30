@@ -1,8 +1,3 @@
-#
-# mode 1: minimal number
-# mode 2: maximal number
-# mode 3: mean number
-# mode 4: random sampling
 #' Change data frame by transforming ranges to single values in the specified column
 #'
 #' @param data A data frame with source data for the analysis

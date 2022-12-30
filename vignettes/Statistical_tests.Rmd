@@ -67,3 +67,56 @@ median(res$aggression_duration.y),
 median(res$aggression_duration.x)))
 wilcox.test(res$aggression_duration.x, res$aggression_duration.y, paired=TRUE)
 ```
+
+# Dependence of F. fusca number on the ambient temperature, colony location and experiment duration
+```{r}
+library(lme4)
+library(lmerTest)
+library(DHARMa)
+model_data <-transform_to_sigle_val(data = aggression_probing_tests, column = "actual_fus_numb")
+# treatment sanguinea_20 should be removed due to significantly lower fusca activity
+model_data<-filter(model_data, territory %in% c("B","T"), 
+                   date > as.Date("2016-12-30"),
+                   date < as.Date("2020-12-30"),
+                   !is.na(temperature), 
+                   treatment!="sanguinea_20")
+aggression_records <- filter(model_data, aggression_num > 0)
+new_dataset<-data.frame()
+for(i in 1:nrow(model_data)){
+  Test = model_data$test_ID[i]
+  interval = model_data$time_elapsed[i]
+  # include experiments with no aggression
+  if (!(Test %in% aggression_records$test_ID)){
+    new_dataset <- rbind(new_dataset, model_data[i,])
+    next
+  }
+  # include experiment part before aggression occurred
+  reference_set <- filter(aggression_records, test_ID == Test)
+  if (all(interval < reference_set$time))
+    new_dataset<-rbind(new_dataset, model_data[i,])
+}
+model_data <- new_dataset
+# temperature transformation: center at zero
+model_data$temperature <- model_data$temperature - min(model_data$temperature) + 1
+# temperature transformation: normalize standard deviation
+sd_temperature <- sd(model_data$temperature)
+model_data$temperature <- model_data$temperature/sd_temperature
+# fit generalized linear model; use log10 transform of the temperature
+mixed.model.activity<-glmer(actual_fus_numb ~ temperature + (1|colony) + territory +
+                          I(log10(time_elapsed)), data=model_data, family="poisson")
+summary(mixed.model.activity)
+```
+
+Show diagnostic plots using DHARMa package.
+```{r}
+set.seed(1010)
+sim.resid <- simulateResiduals(mixed.model.activity, n = 1000)
+plot(sim.resid)
+```
+
+Retrieve the effect of temperature increase on F. fusca number and back transform into the original scale.
+```{r}
+temp.effect <- fixef(mixed.model.activity)['temperature']
+temp.effect <- temp.effect/sd_temperature
+exp(temp.effect)
+```
