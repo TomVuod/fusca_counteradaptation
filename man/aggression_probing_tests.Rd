@@ -3,7 +3,7 @@
 \docType{data}
 \name{aggression_probing_tests}
 \alias{aggression_probing_tests}
-\title{A data frame with the regults of behavioural tests in which one or 20 alien ants were placed
+\title{A data frame with the results of behavioural tests in which one or 20 alien ants were placed
 into the arena around F. fusca nest}
 \format{
 The data frame consists of the following columns:
@@ -19,22 +19,18 @@ territory; T - onto, B - beyond, E - near the edge (from outside)}
 ants not involved in aggression were included}
 \item{aggression_num}{The number of F. fusca ants involved in aggression}
 \item{hour}{Timing of the test start}
-\item{fusca_num_lower}{Lower bound for the estimate of non-aggressive F. fusca number in arena}
-\item{fusca_num_upper}{Upper bound for the estimate of non-aggressive F. fusca number in arena}
 \item{presence}{A logical vector indicating whther an itroduced ant was still present (visible) during arena
 inspection}
-\item{date}{Test date}
+\item{date}{Date of the test}
 \item{temperature}{Ambient temperature}
 \item{alien_colony_ID}{ID of the colony from which alien ants introduced into arena were collected}
-\item{aggression_num_min}{Lower bound for the estimate of aggressive F. fusca number in arena}
-\item{aggression_num_max}{Upper bound for the estimate of aggressive F. fusca number in arena}
 }
 }
 \usage{
 aggression_probing_tests
 }
 \description{
-A data frame with the regults of behavioural tests in which one or 20 alien ants were placed
+A data frame with the results of behavioural tests in which one or 20 alien ants were placed
 into the arena around F. fusca nest
 }
 \keyword{datasets}

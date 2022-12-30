@@ -10,22 +10,21 @@ knitr::opts_chunk$set(echo = TRUE)
 # Chi-square test of the aggression frequency between colonies nesting within and outside wood ant territory
 
 ```{r message = FALSE}
-devtools::load_all() # to be changed
-# library(fusca.defence)
+library(fusca.defence)
 # Load data with the results of the aggression test - basic variant
-#data("aggression_probing_tests")
+data("aggression_probing_tests")
 # For experiments with the use of 20 F. sanguinea ants introduced into arena around F. fusca nest
 # T - within territory, B - beyond territory
-# Colonies are classified according to the maximal number of aggrressive ants exceeding
+# Colonies are classified according to the maximal number of aggressive ants exceeding
 # threshold number
-chi_sq_test(treatment_ = "sanguinea_20", threshold_number = 0, data = aggression_probing_tests)
+chi_sq_test(treatment_ = "sanguinea_20")
 
 ```
 
 
 ```{r}
 # The same as above but for treatment with the use of a signle F. sanguinea ant
-chi_sq_test(treatment_ = "sanguinea_1", threshold_number = 0, data = aggression_probing_tests)
+chi_sq_test(treatment_ = "sanguinea_1")
 
 ```
 
@@ -33,7 +32,7 @@ chi_sq_test(treatment_ = "sanguinea_1", threshold_number = 0, data = aggression_
 
 ```{r message = FALSE}
 # Load dataset
-# data("agitation_tests")
+data("agitation_tests")
 # summarize duration of aggressive behaviour over the experiment
 
 agitation_tests_summary <- group_by(agitation_tests, colony, treatment) %>%
