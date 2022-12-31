@@ -120,3 +120,57 @@ temp.effect <- fixef(mixed.model.activity)['temperature']
 temp.effect <- temp.effect/sd_temperature
 exp(temp.effect)
 ```
+
+# Factors influencing maximial number of F. fusca ants on the arena
+```{r include = FALSE, echo = FALSE}
+max_activ_data <- data.frame()
+for(i in seq_along(max_ac_model_list)){
+  max_activ_data <- rbind(max_activ_data, data.frame(c(fixef(max_ac_model_list[[i]]$glmm_model), 
+                                                       max_ac_model_list[[i]]$diagnostic_tests)))
+}
+# which model pass all diagnostic tests
+diagnostic_pass <- apply(max_activ_data, 1, function(x) all(x[5:8]>0.05))
+cat(sprintf("Number of models which passed all diagnostic tests: %d\n", 
+            sum(diagnostic_pass, na.rm = TRUE)))
+
+split(max_activ_data, diagnostic_pass) %>% lapply(function(x) apply(x[,1:4],2,summary))
+```
+```{r eval = FALSE}
+set.seed(1001)
+max_activ_data <- data.frame()
+max_ac_model_list <-list()
+for (i in seq_len(1E3)){
+  sample_data <- aggression_probing_tests %>% 
+    filter(date > as.Date("2019-01-01")) %>%
+    transform_to_sigle_val(column = "actual_fus_numb", mode = 4) %>% # select random fusca number from observed range
+    group_by(territory, treatment, colony, date) %>% 
+    summarise(max_activity = max(na.omit(actual_fus_numb)))
+  ma_model <- try(glmer(max_activity ~ treatment * territory + (1|colony),
+                    data = sample_data, family = poisson(link="log")))
+  if (class(ma_model)=="try-error"){
+    print("Model error")
+    next
+  }
+  max_ac_model_list[[length(max_ac_model_list)+1]] <- list()
+  sim_residuals <-simulateResiduals(ma_model)
+  diagnostic_tests <- list(testUniformity(sim_residuals, plot = FALSE)$p.value,
+                           testOutliers(sim_residuals, plot = FALSE)$p.value,
+                           testDispersion(sim_residuals, plot = FALSE)$p.value,
+                           testQuantiles(sim_residuals, plot = FALSE)$p.value)
+  names(diagnostic_tests) <- c("testUniformity", "testOutliers", "testDispersion", "testQuantiles")
+  max_ac_model_list[[length(max_ac_model_list)]]$glmm_model <- ma_model
+  max_ac_model_list[[length(max_ac_model_list)]]$diagnostic_tests <- diagnostic_tests
+}
+# which model pass all diagnostic tests
+max_activ_data <- data.frame()
+for(i in seq_along(max_ac_model_list)){
+  max_activ_data <- rbind(max_activ_data, data.frame(c(fixef(max_ac_model_list[[i]]$glmm_model), 
+                                                       max_ac_model_list[[i]]$diagnostic_tests)))
+}
+diagnostic_pass <- apply(max_activ_data, 1, function(x) all(x[5:8]>0.05))
+
+cat(sprintf("Number of models which passed all diagnostic tests: %d\n", 
+            sum(diagnostic_pass, na.rm = TRUE)))
+
+split(max_activ_data, diagnostic_pass) %>% lapply(function(x) apply(x[,1:4],2,summary))
+```
