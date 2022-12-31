@@ -188,3 +188,17 @@ p-values of model coefficients for the rest of the models
 ```{r}
 p_vals_splitted$'FALSE'
 ```
+# Difference in the head width of foragers from colonies inhabiting wood ant territory and those living the elsewhere
+```{r}
+data(head_width)
+hw_summary <- headwidth_summary(head_width)
+t.test.data <- filter(aggression_probing_tests, territory %in% c("T","B")) %>%
+ select(colony,territory) %>% 
+  left_join(hw_summary) %>% 
+  select(colony,territory,mean) %>% distinct()
+x <- filter(t.test.data,territory=="T") %>% select(mean)
+y <- filter(t.test.data,territory=="P") %>% select(mean)
+cat(sprintf("Mead head width of foragers from wood ant territory: %f", mean(x)))
+cat(sprintf("Mead head width of foragers from outside wood ant territory: %f", mean(y)))
+t.test(x,y)
+```

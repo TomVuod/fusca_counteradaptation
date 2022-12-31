@@ -35,7 +35,7 @@ select_from_range<-function(x){
 # if range instead of single value is given - minimum value is taken
 # to do: random sampling from range
 # to do: account for colonies tested twice
-process_test_data<-function(data, duration=60, test_id=NA, ...){
+process_test_data <- function(data, duration=60, test_id=NA, ...){
   if(!is.na(test_id)){
     data <- filter(data, test_ID==test_id)
   }
@@ -49,12 +49,11 @@ process_test_data<-function(data, duration=60, test_id=NA, ...){
              test_ID = test_id, colony=colony, treatment = treatment)
 }
 
-
 # take the maximum number of ants observed up to defined time point
-hitherto_number<-function(test_id=NA, time_limit=10, column="aggression_num",
-                          data=aggression_probing_tests, ...){
+hitherto_number <- function(test_id = NA, time_limit = 10, column = "aggression_num",
+                          data = aggression_probing_tests, ...){
   if(!is.na(test_id))
-    filter(data,test_ID==test_id,time_elapsed <= time_limit) %>%
+    filter(data,test_ID == test_id,time_elapsed <= time_limit) %>%
     pull(!!sym(column)) -> vals
   else
     filter(data, time_elapsed <= time_limit) %>%
@@ -77,7 +76,7 @@ hitherto_number<-function(test_id=NA, time_limit=10, column="aggression_num",
 #' @param threshold_number A numeric indicating the minimal number of ants being
 #' aggressive above which the test is classified as showing aggression
 #' @param data A data frame with source data for the analysis
-#' @returns Output from stats::chisq.test and medians of thr compared variables
+#' @returns Output from stats::chisq.test and medians of the compared variables
 #' @export
 chi_sq_test <- function(upper_limit_date="2020-12-31", lower_limit_date="2017-01-01",
                       treatment_="sanguinea_1", duration=60, threshold_number=0,
@@ -99,4 +98,24 @@ chi_sq_test <- function(upper_limit_date="2020-12-31", lower_limit_date="2017-01
   rownames(test_data) <-c ("threshold number not passed", "threshold number passed")
   print(test_data)
   chisq.test(test_data)
+}
+
+#' Summarize data from measurement of the head width of F. fusca foragers
+#'
+#' @param headwidth A data frame with the results of head width measurement
+#' @returns A data frame with head width summarized over colonies
+#' @export
+headwidth_summary <- function(headwidth){
+  hw_summary<- split(headwidth, headwidth$colony)
+  hw_summary <- lapply(hw_summary, function(x){
+    data.frame(mean=mean(x$head_width),
+               median=median(x$head_width),
+               min=min(x$head_width),
+               max=max(x$head_width),
+               sd=sd(x$head_width),
+               n=nrow(x))})
+  hw_summary <- do.call(rbind, hw_summary)
+  hw_summary <- cbind(hw_summary, data.frame(colony=rownames(hw_summary)))
+  rownames(hw_summary) <- seq_len(nrow(hw_summary))
+  hw_summary
 }

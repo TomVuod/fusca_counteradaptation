@@ -44,3 +44,9 @@
 #'     \item{alien_colony_ID}{ID of the colony from which alien ants introduced into arena were collected}
 #'     }
 "agitation_tests"
+#' A data frame with the results of measurement of head width of F. fusca foragers
+#'  \describe{
+#'    \item{colony}{Colony ID}
+#'    \item{head_width}{Head width of a single worker in micrometers}
+#'  }
+"head_width"

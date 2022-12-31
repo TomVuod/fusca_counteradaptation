@@ -35,7 +35,7 @@ aggressive above which the test is classified as showing aggression}
 statistical comparison}
 }
 \value{
-Output from stats::chisq.test and medians of thr compared variables
+Output from stats::chisq.test and medians of the compared variables
 }
 \description{
 Perform the chi-square test for the number of colonies in which

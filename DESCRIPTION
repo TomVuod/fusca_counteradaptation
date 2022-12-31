@@ -1,5 +1,5 @@
 Package: fusca.defence
-Title: What the Package Does (One Line, Title Case)
+Title: The package contains data collected for the research project 
 Version: 0.0.0.9000
 Authors@R: 
     person("Tomasz", "Włodarczyk", , "tomwlo@gmail.com", role = c("aut", "cre"),
@@ -16,7 +16,11 @@ Depends:
     stringi,
     lme4,
     lmerTest,
-    DHARMa
+    DHARMa,
+    ggplot2
+Imports: 
+    purrr,
+    forcats
 LazyData: true
 Suggests: 
     knitr,
