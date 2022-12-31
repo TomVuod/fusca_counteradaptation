@@ -18,14 +18,10 @@ data("aggression_probing_tests")
 # Colonies are classified according to the maximal number of aggressive ants exceeding
 # threshold number
 chi_sq_test(treatment_ = "sanguinea_20")
-
 ```
-
-
 ```{r}
 # The same as above but for treatment with the use of a signle F. sanguinea ant
 chi_sq_test(treatment_ = "sanguinea_1")
-
 ```
 
 # Wilcoxon test to examine difference in duration of aggression displayed by agitated F. fusca ants toward alien ant
@@ -122,19 +118,6 @@ exp(temp.effect)
 ```
 
 # Factors influencing maximial number of F. fusca ants on the arena
-```{r include = FALSE, echo = FALSE}
-max_activ_data <- data.frame()
-for(i in seq_along(max_ac_model_list)){
-  max_activ_data <- rbind(max_activ_data, data.frame(c(fixef(max_ac_model_list[[i]]$glmm_model), 
-                                                       max_ac_model_list[[i]]$diagnostic_tests)))
-}
-# which model pass all diagnostic tests
-diagnostic_pass <- apply(max_activ_data, 1, function(x) all(x[5:8]>0.05))
-cat(sprintf("Number of models which passed all diagnostic tests: %d\n", 
-            sum(diagnostic_pass, na.rm = TRUE)))
-
-split(max_activ_data, diagnostic_pass) %>% lapply(function(x) apply(x[,1:4],2,summary))
-```
 ```{r eval = FALSE}
 set.seed(1001)
 max_activ_data <- data.frame()
@@ -171,6 +154,37 @@ diagnostic_pass <- apply(max_activ_data, 1, function(x) all(x[5:8]>0.05))
 
 cat(sprintf("Number of models which passed all diagnostic tests: %d\n", 
             sum(diagnostic_pass, na.rm = TRUE)))
-
-split(max_activ_data, diagnostic_pass) %>% lapply(function(x) apply(x[,1:4],2,summary))
+```
+```{r echo = FALSE}
+max_activ_data <- data.frame()
+max_ac_model_list <- fusca.defence:::max_ac_model_list
+for(i in seq_along(max_ac_model_list)){
+  max_activ_data <- rbind(max_activ_data, data.frame(c(fixef(max_ac_model_list[[i]]$glmm_model), 
+                                                       max_ac_model_list[[i]]$diagnostic_tests)))
+}
+# which model pass all diagnostic tests
+diagnostic_pass <- apply(max_activ_data, 1, function(x) all(x[5:8]>0.05))
+cat(sprintf("Number of models which passed all diagnostic tests: %d\n", 
+            sum(diagnostic_pass, na.rm = TRUE)))
+```
+p-values of model coefficients for models which passed diagnostic tests
+```{r eval = FALSE}
+model_p_vals <- data.frame()
+for (i in seq_len(length(max_ac_model_list))){
+  model_p_vals <- rbind(model_p_vals, data.frame(as.list(summary(max_ac_model_list[[i]]$glmm_model)$coeff[,4])))
+}
+p_vals_splitted <- split(model_p_vals, diagnostic_pass) %>% lapply(function(x) apply(x,2,summary))
+p_vals_splitted$'TRUE'
+```
+```{r echo = FALSE}
+model_p_vals <- data.frame()
+for(i in seq_along(max_ac_model_list)){
+model_p_vals <- rbind(model_p_vals, max_ac_model_list[[i]]$p_val) 
+}
+p_vals_splitted <- split(model_p_vals, diagnostic_pass) %>% lapply(function(x) apply(x,2,summary))
+p_vals_splitted$'TRUE'
+```
+p-values of model coefficients for the rest of the models
+```{r}
+p_vals_splitted$'FALSE'
 ```
