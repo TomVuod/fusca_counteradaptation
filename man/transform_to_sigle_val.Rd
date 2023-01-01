@@ -5,7 +5,7 @@
 \title{Change data frame by transforming ranges to single values in the specified column}
 \usage{
 transform_to_sigle_val(
-  data = long_tests_results,
+  data = aggression_probing_tests,
   column = "aggression_num",
   mode = 1
 )

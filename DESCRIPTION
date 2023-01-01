@@ -13,14 +13,14 @@ RoxygenNote: 7.2.3
 Depends: 
     R (>= 2.10),
     dplyr,
-    stringi,
     lme4,
     lmerTest,
     DHARMa,
     ggplot2
 Imports: 
     purrr,
-    forcats
+    forcats,
+    stringi
 LazyData: true
 Suggests: 
     knitr,

@@ -116,6 +116,23 @@ temp.effect <- fixef(mixed.model.activity)['temperature']
 temp.effect <- temp.effect/sd_temperature
 exp(temp.effect)
 ```
+# Logistic model for the probability of F. sanguinea being attacked by F. fusca colony
+```{r}
+# compare treatments with the use of 1 nad 20 F. sanguinea workers
+logistic.model.res <- filter(aggression_probing_tests, date>as.Date("2019-01-01"), territory %in% (c("B", "T"))) %>%
+  transform_to_sigle_val() %>% 
+  split(.$test_ID) %>%
+  purrr::map(process_test_data) %>%
+  do.call(rbind, .) %>%
+  filter(is.finite(ant_number)) %>%
+  mutate(aggression_presence = ant_number > 0) %>% 
+  glmer(aggression_presence ~ treatment + territory + (1|colony), data = ., family = "binomial") 
+summary(logistic.model.res) 
+```
+Create diagnostic plots with the use of DHARMa package 
+```{r}
+plot(simulateResiduals(logistic.model.res, n = 1000))
+```
 
 # Factors influencing maximial number of F. fusca ants on the arena
 ```{r eval = FALSE}
@@ -188,17 +205,18 @@ p-values of model coefficients for the rest of the models
 ```{r}
 p_vals_splitted$'FALSE'
 ```
-# Difference in the head width of foragers from colonies inhabiting wood ant territory and those living the elsewhere
+# Difference in the head width of foragers from colonies inhabiting wood ant territory and those living elsewhere
 ```{r}
 data(head_width)
 hw_summary <- headwidth_summary(head_width)
 t.test.data <- filter(aggression_probing_tests, territory %in% c("T","B")) %>%
  select(colony,territory) %>% 
   left_join(hw_summary) %>% 
-  select(colony,territory,mean) %>% distinct()
-x <- filter(t.test.data,territory=="T") %>% select(mean)
-y <- filter(t.test.data,territory=="P") %>% select(mean)
-cat(sprintf("Mead head width of foragers from wood ant territory: %f", mean(x)))
-cat(sprintf("Mead head width of foragers from outside wood ant territory: %f", mean(y)))
+  select(colony,territory,mean) %>% 
+  distinct()
+x <- filter(t.test.data,territory=="T") %>% pull(mean)
+y <- filter(t.test.data,territory=="B") %>% pull(mean)
+cat(sprintf("Mead head width of foragers from wood ant territory: %.2f μm", mean(x, na.rm = TRUE)))
+cat(sprintf("Mead head width of foragers from outside wood ant territory: %.2f μm", mean(y, na.rm = TRUE)))
 t.test(x,y)
 ```

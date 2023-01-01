@@ -8,7 +8,7 @@
 #' 1 - minimum, 2 - maximum, 3 - mean, 4 - random.
 #' @returns A data frame with transformed variable
 #' @export
-transform_to_sigle_val <- function(data = long_tests_results, column="aggression_num", mode=1){
+transform_to_sigle_val <- function(data = aggression_probing_tests, column="aggression_num", mode=1){
   fun_list=list(min,max,mean,select_from_range)
   data[,column] <- mapply(function(x) fun_list[[mode]](get_extremes(x)),data[,column])
   data[,column] <- as.numeric(as.character(data[,column]))
@@ -17,8 +17,7 @@ transform_to_sigle_val <- function(data = long_tests_results, column="aggression
 
 # transform character string representing range to numeric variable
 get_extremes<-function(x){
-  library(stringi)
-  as.numeric(stri_split(x,fixed="-")[[1]])
+  as.numeric(stringi::stri_split(x,fixed="-")[[1]])
 }
 
 # select random value from a given range
@@ -29,13 +28,17 @@ select_from_range<-function(x){
   sample(x[1]:x[2],1)
 }
 
-
-# return a data frame row with summarized aggression index for a given test
-# (maximal number of aggressive ants during selected period);
-# if range instead of single value is given - minimum value is taken
-# to do: random sampling from range
-# to do: account for colonies tested twice
-process_test_data <- function(data, duration=60, test_id=NA, ...){
+#' Return a data frame row with summarized aggression index for a given test
+#' (maximal number of aggressive ants during selected period);
+#' if range instead of single value is given - minimum value is taken
+#' @param data A data frame with results of the behavioural tests
+#' @param duration A numeric indicting the period form the test beginning to be
+#' taken into consideration
+#' @param test_id A numric indicating test ID
+#' @param ... Additional arguments passed to `hitherto_number` function
+#' @returns A data frame with summarized aggression index
+#' @export
+process_test_data <- function(data, duration = 60, test_id = NA, ...){
   if(!is.na(test_id)){
     data <- filter(data, test_ID==test_id)
   }
