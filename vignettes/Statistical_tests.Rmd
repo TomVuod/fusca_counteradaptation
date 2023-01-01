@@ -1,6 +1,7 @@
 ---
 title: "Statistical tests"
 output: rmarkdown::html_vignette
+author: Tomasz Włodarczyk
 vignette: >
   %\VignetteIndexEntry{test}
   %\VignetteEngine{knitr::rmarkdown}
@@ -108,7 +109,7 @@ summary(mixed.model.activity)
 ```
 
 Show diagnostic plots using DHARMa package.
-```{r}
+```{r out.width = "80%"}
 set.seed(1010)
 sim.resid <- simulateResiduals(mixed.model.activity, n = 1000)
 plot(sim.resid)
@@ -134,7 +135,7 @@ logistic.model.res <- filter(aggression_probing_tests, date>as.Date("2019-01-01"
 summary(logistic.model.res) 
 ```
 Create diagnostic plots with the use of DHARMa package 
-```{r}
+```{r out.width = "80%"}
 plot(simulateResiduals(logistic.model.res, n = 1000))
 ```
 
