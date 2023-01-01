@@ -35,11 +35,9 @@ chi_sq_test(treatment_ = "sanguinea_1")
 # Load dataset
 data("agitation_tests")
 # summarize duration of aggressive behaviour over the experiment
-
 agitation_tests_summary <- group_by(agitation_tests, colony, treatment) %>%
   summarise(aggression_duration=sum(aggression_duration)) %>% 
   left_join(distinct(select(agitation_tests, colony, territory)))
-
 # difference in aggression toward F. polyctena between colonies located within and 
 # outside rufa territory
 x<-filter(agitation_tests_summary, treatment=="F. polyctena", territory=="B")$aggression_duration
@@ -47,7 +45,6 @@ y<-filter(agitation_tests_summary, treatment=="F. polyctena", territory=="T")$ag
 cat(sprintf("Median time of aggression of colonies from within and from outside
 wood ant territory: %f sec., %f sec., respectively", median(y), median(x)))
 wilcox.test(x,y)
-
 # difference in aggression toward F. sanguinea between colonies located within and 
 # outside rufa territory
 x<-filter(agitation_tests_summary, treatment=="F. sanguinea", territory=="B")$aggression_duration
@@ -55,7 +52,6 @@ y<-filter(agitation_tests_summary, treatment=="F. sanguinea", territory=="T")$ag
 cat(sprintf("Median time of aggression of colonies from within and from outside
 wood ant territory: %f sec., %f sec., respectively", median(y), median(x)))
 wilcox.test(x,y)
-
 # difference in aggression toward F. sanguinea and F. polyctena outside territory
 sang_res <- filter(agitation_tests_summary, treatment=="F. sanguinea", territory=="B") %>%
   select(colony, aggression_duration)
@@ -173,7 +169,6 @@ for(i in seq_along(max_ac_model_list)){
                                                        max_ac_model_list[[i]]$diagnostic_tests)))
 }
 diagnostic_pass <- apply(max_activ_data, 1, function(x) all(x[5:8]>0.05))
-
 cat(sprintf("Number of models which passed all diagnostic tests: %d\n", 
             sum(diagnostic_pass, na.rm = TRUE)))
 ```
