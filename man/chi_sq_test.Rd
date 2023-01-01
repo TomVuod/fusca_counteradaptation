@@ -12,7 +12,7 @@ chi_sq_test(
   treatment_ = "sanguinea_1",
   duration = 60,
   threshold_number = 0,
-  data = aggression_probing_tests,
+  raw_data = NULL,
   ...
 )
 }
@@ -23,16 +23,18 @@ upper bound to filter experiments by completion date}
 \item{lower_limit_date}{A character to be coerced to class 'Date' indicating
 lower bound to filter experiments by completion date}
 
+\item{treatment_}{A character indicating treatment variant to be chosen for
+statistical comparison}
+
 \item{duration}{A numeric indicating the number of minutes from the experiment begin
 to be considered when determining aggression occurrence.}
 
 \item{threshold_number}{A numeric indicating the minimal number of ants being
 aggressive above which the test is classified as showing aggression}
 
-\item{data}{A data frame with source data for the analysis}
+\item{raw_data}{A data frame with source data for the analysis}
 
-\item{treatment}{A character indicating treatment variant to be chosen for
-statistical comparison}
+\item{...}{Other arguments passed to \code{transform_to_single_val} function}
 }
 \value{
 Output from stats::chisq.test and medians of the compared variables

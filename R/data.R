@@ -39,7 +39,7 @@
 #'     \item{biting_ants_number}{The number of F. fusca ants biting an alien ant on experiment completion}
 #'     \item{territory}{Variable indicating location of F. fusca colony relative to red wood ant
 #'     territory; T - onto, B - beyond}
-#'     \item{aggression_duration}{Duration of alien ant being bitten by F. fusca [in sec.]}
+#'     \item{aggression_duration}{Duration of alien ant being bitten by F. fusca (in sec.)}
 #'     \item{time}{Time and date of experiment start}
 #'     \item{alien_colony_ID}{ID of the colony from which alien ants introduced into arena were collected}
 #'     }

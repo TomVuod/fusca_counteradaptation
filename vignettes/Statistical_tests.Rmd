@@ -1,6 +1,10 @@
 ---
 title: "Statistical tests"
-output: html_document
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{test}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
@@ -69,7 +73,7 @@ wilcox.test(res$aggression_duration.x, res$aggression_duration.y, paired=TRUE)
 library(lme4)
 library(lmerTest)
 library(DHARMa)
-model_data <-transform_to_sigle_val(data = aggression_probing_tests, column = "actual_fus_numb")
+model_data <-transform_to_sigle_val(raw_data = aggression_probing_tests, column = "actual_fus_numb")
 # treatment sanguinea_20 should be removed due to significantly lower fusca activity
 model_data<-filter(model_data, territory %in% c("B","T"), 
                    date > as.Date("2016-12-30"),

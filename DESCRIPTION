@@ -1,12 +1,11 @@
 Package: fusca.defence
 Title: The package contains data collected for the research project 
-Version: 0.0.0.9000
+Version: 0.0.0.900
 Authors@R: 
     person("Tomasz", "Włodarczyk", , "tomwlo@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-1554-9699"))
 Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
@@ -20,7 +19,10 @@ Depends:
 Imports: 
     purrr,
     forcats,
-    stringi
+    stringi,
+    magrittr,
+    rlang,
+    stats
 LazyData: true
 Suggests: 
     knitr,

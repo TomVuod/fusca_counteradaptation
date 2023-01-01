@@ -4,22 +4,15 @@
 \alias{transform_to_sigle_val}
 \title{Change data frame by transforming ranges to single values in the specified column}
 \usage{
-transform_to_sigle_val(
-  data = aggression_probing_tests,
-  column = "aggression_num",
-  mode = 1
-)
+transform_to_sigle_val(raw_data = NULL, column = "aggression_num", mode = 1)
 }
 \arguments{
-\item{data}{A data frame with source data for the analysis}
+\item{raw_data}{A data frame with source data for the analysis}
 
 \item{column}{A character indicating column name with variable to be transformed}
 
 \item{mode}{A numeric indicating how the range will be mapped to single variable;
 1 - minimum, 2 - maximum, 3 - mean, 4 - random.}
-
-\item{treatment}{A character indicating treatment variant to be chosen for
-statistical comparison}
 }
 \value{
 A data frame with transformed variable

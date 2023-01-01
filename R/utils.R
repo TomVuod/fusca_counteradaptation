@@ -1,18 +1,19 @@
 #' Change data frame by transforming ranges to single values in the specified column
-#'
-#' @param data A data frame with source data for the analysis
+#' @param raw_data A data frame with source data for the analysis
 #' @param column A character indicating column name with variable to be transformed
-#' @param treatment A character indicating treatment variant to be chosen for
-#' statistical comparison
 #' @param mode A numeric indicating how the range will be mapped to single variable;
 #' 1 - minimum, 2 - maximum, 3 - mean, 4 - random.
 #' @returns A data frame with transformed variable
 #' @export
-transform_to_sigle_val <- function(data = aggression_probing_tests, column="aggression_num", mode=1){
+transform_to_sigle_val <- function(raw_data = NULL, column="aggression_num", mode=1){
+  if(is.null(raw_data)) {
+    data("aggression_probing_tests", envir = environment())
+    raw_data <- aggression_probing_tests
+  }
   fun_list=list(min,max,mean,select_from_range)
-  data[,column] <- mapply(function(x) fun_list[[mode]](get_extremes(x)),data[,column])
-  data[,column] <- as.numeric(as.character(data[,column]))
-  data
+  raw_data[,column] <- mapply(function(x) fun_list[[mode]](get_extremes(x)),raw_data[,column])
+  raw_data[,column] <- as.numeric(as.character(raw_data[,column]))
+  raw_data
 }
 
 # transform character string representing range to numeric variable
@@ -40,7 +41,7 @@ select_from_range<-function(x){
 #' @export
 process_test_data <- function(data, duration = 60, test_id = NA, ...){
   if(!is.na(test_id)){
-    data <- filter(data, test_ID==test_id)
+    data <- filter(data, .data$test_ID==test_id)
   }
   territory_treat <- data$territory[1]
   colony <- data$colony[1]
@@ -56,12 +57,12 @@ process_test_data <- function(data, duration = 60, test_id = NA, ...){
 hitherto_number <- function(test_id = NA, time_limit = 10, column = "aggression_num",
                           data = aggression_probing_tests, ...){
   if(!is.na(test_id))
-    filter(data,test_ID == test_id,time_elapsed <= time_limit) %>%
+    filter(data, .data$test_ID == test_id, .data$time_elapsed <= time_limit) %>%
     pull(!!sym(column)) -> vals
   else
-    filter(data, time_elapsed <= time_limit) %>%
+    filter(data, .data$time_elapsed <= time_limit) %>%
     pull(!!sym(column)) -> vals
-  max(na.omit(vals))
+  max(stats::na.omit(vals))
 }
 
 #' Perform the chi-square test for the number of colonies in which
@@ -72,21 +73,27 @@ hitherto_number <- function(test_id = NA, time_limit = 10, column = "aggression_
 #' upper bound to filter experiments by completion date
 #' @param lower_limit_date A character to be coerced to class 'Date' indicating
 #' lower bound to filter experiments by completion date
-#' @param treatment A character indicating treatment variant to be chosen for
+#' @param treatment_ A character indicating treatment variant to be chosen for
 #' statistical comparison
 #' @param duration A numeric indicating the number of minutes from the experiment begin
 #' to be considered when determining aggression occurrence.
 #' @param threshold_number A numeric indicating the minimal number of ants being
 #' aggressive above which the test is classified as showing aggression
-#' @param data A data frame with source data for the analysis
+#' @param raw_data A data frame with source data for the analysis
+#' @param ... Other arguments passed to `transform_to_single_val` function
 #' @returns Output from stats::chisq.test and medians of the compared variables
+#' @importFrom magrittr "%>%"
 #' @export
-chi_sq_test <- function(upper_limit_date="2020-12-31", lower_limit_date="2017-01-01",
-                      treatment_="sanguinea_1", duration=60, threshold_number=0,
-                      data = aggression_probing_tests, ...){
-  filtered_data <- filter(data,date < as.Date(upper_limit_date),
-                        date > as.Date(lower_limit_date), treatment==treatment_)
-  filtered_data <- transform_to_sigle_val(data=filtered_data,...)
+chi_sq_test <- function(upper_limit_date = "2020-12-31", lower_limit_date = "2017-01-01",
+                      treatment_ = "sanguinea_1", duration = 60, threshold_number = 0,
+                      raw_data = NULL, ...){
+  if(is.null(raw_data)) {
+    data("aggression_probing_tests", envir = environment())
+    raw_data <- aggression_probing_tests
+  }
+  filtered_data <- filter(raw_data, .data$date < as.Date(upper_limit_date),
+                        .data$date > as.Date(lower_limit_date), .data$treatment==treatment_)
+  filtered_data <- transform_to_sigle_val(raw_data = filtered_data,...)
   aggression_presence<-data.frame()
   for(test_id in unique(filtered_data$test_ID)){
     aggression_presence <- rbind(aggression_presence,
@@ -100,7 +107,7 @@ chi_sq_test <- function(upper_limit_date="2020-12-31", lower_limit_date="2017-01
   if(nrow(test_data) == 1) stop("All or none data records pass threshold")
   rownames(test_data) <-c ("threshold number not passed", "threshold number passed")
   print(test_data)
-  chisq.test(test_data)
+  stats::chisq.test(test_data)
 }
 
 #' Summarize data from measurement of the head width of F. fusca foragers
@@ -112,13 +119,16 @@ headwidth_summary <- function(headwidth){
   hw_summary<- split(headwidth, headwidth$colony)
   hw_summary <- lapply(hw_summary, function(x){
     data.frame(mean=mean(x$head_width),
-               median=median(x$head_width),
+               median=stats::median(x$head_width),
                min=min(x$head_width),
                max=max(x$head_width),
-               sd=sd(x$head_width),
+               sd=stats::sd(x$head_width),
                n=nrow(x))})
   hw_summary <- do.call(rbind, hw_summary)
   hw_summary <- cbind(hw_summary, data.frame(colony=rownames(hw_summary)))
   rownames(hw_summary) <- seq_len(nrow(hw_summary))
   hw_summary
 }
+
+#' @import ggplot2 DHARMa lmerTest lme4 dplyr
+NULL
