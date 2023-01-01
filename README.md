@@ -3,7 +3,7 @@ This is the R package created as a supplementary material to the manuscript enti
 Install package
 ```
 if(!require(devtools)) install.packages("devtools")
-devtools::install_github("TomVuod/fusca_counteradaptation")
+devtools::install_github("TomVuod/fusca_counteradaptation", build_vignette = TRUE)
 ```
 Load package
 ```
