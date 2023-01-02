@@ -45,6 +45,8 @@
 #'     }
 "agitation_tests"
 #' A data frame with the results of measurement of head width of F. fusca foragers
+#'
+#'  @format The data frame consists of the following columns:
 #'  \describe{
 #'    \item{colony}{Colony ID}
 #'    \item{head_width}{Head width of a single worker in micrometers}
