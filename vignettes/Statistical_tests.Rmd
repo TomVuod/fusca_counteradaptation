@@ -3,7 +3,7 @@ title: "Statistical tests"
 output: rmarkdown::html_vignette
 author: Tomasz Włodarczyk
 vignette: >
-  %\VignetteIndexEntry{test}
+  %\VignetteIndexEntry{Statistical tests}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -105,12 +105,11 @@ summary(mixed.model.activity)
 ```
 
 Show diagnostic plots using DHARMa package.
-```{r out.width = "80%"}
+```{r fig.dim = c(9, 6}
 set.seed(1010)
 sim.resid <- simulateResiduals(mixed.model.activity, n = 1000)
 plot(sim.resid)
 ```
-
 Retrieve the effect of temperature increase on F. fusca number and back transform into the original scale.
 ```{r}
 temp.effect <- fixef(mixed.model.activity)['temperature']
@@ -131,7 +130,7 @@ logistic.model.res <- filter(aggression_probing_tests, date>as.Date("2019-01-01"
 summary(logistic.model.res) 
 ```
 Create diagnostic plots with the use of DHARMa package 
-```{r out.width = "80%"}
+```{r fig.dim = c(9, 6)}
 plot(simulateResiduals(logistic.model.res, n = 1000))
 ```
 
