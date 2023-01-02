@@ -9,7 +9,7 @@ Load package
 ```
 library(fusca.defence)
 ```
-See the report from statistical analyses
+See the report with statistical analyses
 ```
 vignette("Statistical_tests", package = "fusca.defence")
 ```
