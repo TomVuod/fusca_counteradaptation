@@ -6,7 +6,7 @@ generate_fig3 <- function(){
   data("aggression_probing_tests", envir = environment())
   # extract IDs of the test in which there was no aggression at all
   no_aggression_tests <- aggression_probing_tests %>%
-    transform_to_sigle_val() %>%
+    transform_to_single_val() %>%
     split(.$test_ID) %>%
     purrr::map(process_test_data) %>%
     do.call(rbind, .) %>%
@@ -16,9 +16,9 @@ generate_fig3 <- function(){
   theme_set(theme_bw())
   fig3_data <- aggression_probing_tests %>%
     filter(.data$date > as.Date("2019-01-01")) %>%
-    mutate(mean_activity = transform_to_sigle_val(., column = "actual_fus_numb", mode = 3)$actual_fus_numb,
-           min_activity = transform_to_sigle_val(., column = "actual_fus_numb", mode = 1)$actual_fus_numb,
-           max_activity = transform_to_sigle_val(., column = "actual_fus_numb", mode = 2)$actual_fus_numb) %>%
+    mutate(mean_activity = transform_to_single_val(., column = "actual_fus_numb", mode = 3)$actual_fus_numb,
+           min_activity = transform_to_single_val(., column = "actual_fus_numb", mode = 1)$actual_fus_numb,
+           max_activity = transform_to_single_val(., column = "actual_fus_numb", mode = 2)$actual_fus_numb) %>%
     mutate(aggression_presence = !(.data$test_ID %in% no_aggression_tests)) %>%
     group_by(.data$territory, .data$aggression_presence, .data$treatment, .data$colony, .data$date) %>%
     summarise(mean_activity = round(max(stats::na.omit(.data$mean_activity))),

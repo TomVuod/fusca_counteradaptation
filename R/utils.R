@@ -5,7 +5,7 @@
 #' 1 - minimum, 2 - maximum, 3 - mean, 4 - random.
 #' @returns A data frame with transformed variable
 #' @export
-transform_to_sigle_val <- function(raw_data = NULL, column="aggression_num", mode=1){
+transform_to_single_val <- function(raw_data = NULL, column="aggression_num", mode=1){
   if(is.null(raw_data)) {
     data("aggression_probing_tests", envir = environment())
     raw_data <- aggression_probing_tests
@@ -93,7 +93,7 @@ chi_sq_test <- function(upper_limit_date = "2020-12-31", lower_limit_date = "201
   }
   filtered_data <- filter(raw_data, .data$date < as.Date(upper_limit_date),
                         .data$date > as.Date(lower_limit_date), .data$treatment==treatment_)
-  filtered_data <- transform_to_sigle_val(raw_data = filtered_data,...)
+  filtered_data <- transform_to_single_val(raw_data = filtered_data,...)
   aggression_presence<-data.frame()
   for(test_id in unique(filtered_data$test_ID)){
     aggression_presence <- rbind(aggression_presence,

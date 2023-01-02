@@ -70,7 +70,7 @@ wilcox.test(res$aggression_duration.x, res$aggression_duration.y, paired=TRUE)
 library(lme4)
 library(lmerTest)
 library(DHARMa)
-model_data <-transform_to_sigle_val(raw_data = aggression_probing_tests, column = "actual_fus_numb")
+model_data <-transform_to_single_val(raw_data = aggression_probing_tests, column = "actual_fus_numb")
 # treatment sanguinea_20 should be removed due to significantly lower fusca activity
 model_data<-filter(model_data, territory %in% c("B","T"), 
                    date > as.Date("2016-12-30"),
@@ -120,7 +120,7 @@ exp(temp.effect)
 ```{r}
 # compare treatments with the use of 1 nad 20 F. sanguinea workers
 logistic.model.res <- filter(aggression_probing_tests, date>as.Date("2019-01-01"), territory %in% (c("B", "T"))) %>%
-  transform_to_sigle_val() %>% 
+  transform_to_single_val() %>% 
   split(.$test_ID) %>%
   purrr::map(process_test_data) %>%
   do.call(rbind, .) %>%
@@ -142,7 +142,7 @@ max_ac_model_list <-list()
 for (i in seq_len(1E3)){
   sample_data <- aggression_probing_tests %>% 
     filter(date > as.Date("2019-01-01")) %>%
-    transform_to_sigle_val(column = "actual_fus_numb", mode = 4) %>% # select random fusca number from observed range
+    transform_to_single_val(column = "actual_fus_numb", mode = 4) %>% # select random fusca number from observed range
     group_by(territory, treatment, colony, date) %>% 
     summarise(max_activity = max(na.omit(actual_fus_numb)))
   ma_model <- try(glmer(max_activity ~ treatment * territory + (1|colony),
