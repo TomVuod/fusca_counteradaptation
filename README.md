@@ -18,4 +18,8 @@ Generate figures 3 and 4
 generate_fig3()
 generate_fig4()
 ```
+Check available datasets
+```
+data(package = "fusca.defence")
+```
 
