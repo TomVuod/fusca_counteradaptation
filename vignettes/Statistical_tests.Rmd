@@ -105,7 +105,7 @@ summary(mixed.model.activity)
 ```
 
 Show diagnostic plots using DHARMa package.
-```{r fig.dim = c(9, 6}
+```{r fig.dim = c(9, 6)}
 set.seed(1010)
 sim.resid <- simulateResiduals(mixed.model.activity, n = 1000)
 plot(sim.resid)
