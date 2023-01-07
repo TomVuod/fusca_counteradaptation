@@ -27,7 +27,7 @@ generate_fig3 <- function(){
 
   fig3_data$aggression_presence <- as.factor(fig3_data$aggression_presence)
   fig3_data$treatment <- forcats::fct_relevel(fig3_data$treatment, c("sanguinea_1", "sanguinea_20"))
-  set.seed(1010)
+  set.seed(10)
   ggplot(fig3_data, aes(y = .data$mean_activity,
                                   shape = .data$treatment,
                                   color = .data$aggression_presence,
@@ -52,6 +52,7 @@ generate_fig4 <- function(){
   agitation_tests_summary <- group_by(agitation_tests, .data$colony, .data$treatment) %>%
     summarise(aggression_duration = sum(.data$aggression_duration)) %>%
     left_join(distinct(select(agitation_tests, .data$colony, .data$territory)))
+  theme_set(theme_bw())
   ggplot(agitation_tests_summary, aes(y = .data$aggression_duration)) +
     geom_boxplot(aes(x = as.factor(.data$territory))) +
     scale_x_discrete(labels = c("Outside", "Inside")) +
