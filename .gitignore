@@ -1,3 +1,7 @@
 .Rproj.user
 inst/doc
 vignettes/*.png
+parse_gpx.py
+gps_coordinates.csv
+fusca\ aggression\ project.gpx
+R/GPS.R
