@@ -134,7 +134,7 @@ Create diagnostic plots with the use of DHARMa package
 plot(simulateResiduals(logistic.model.res, n = 1000))
 ```
 
-# Factors influencing maximial number of F. fusca ants on the arena
+# Factors influencing the maximal number of F. fusca ants on the arena
 ```{r eval = FALSE}
 set.seed(1001)
 max_activ_data <- data.frame()
