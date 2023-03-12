@@ -23,7 +23,7 @@
 "aggression_probing_tests"
 
 
-#' A data frame with the regults of the behavioural tests in which alien ant was places
+#' A data frame with the regults of the behavioural tests in which alien ant was placed
 #' into the arena with numerous already agitated F. fusca ants
 #'
 #' @format The data frame consists of the following columns:
@@ -52,3 +52,13 @@
 #'    \item{head_width}{Head width of a single worker in micrometers}
 #'  }
 "head_width"
+
+#' A data frame with coordinates of the colonies used in the study
+#'
+#' @format The data frame consists of the following columns:
+#'   \describe{
+#'     \item{colony}{ID of F. fusca colony}
+#'     \item{latitude}{Latitude coordinate of the colony location}
+#'     \item{longitude}{Longitude coordinate of the colony location}
+#'     }
+"GPS_coordinates"
