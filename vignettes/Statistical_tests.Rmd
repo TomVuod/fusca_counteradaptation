@@ -18,6 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(fusca.defence)
 # Load data with the results of the aggression test - basic variant
 data("aggression_probing_tests")
+aggression_probing_tests <- aggression_probing_tests[!(aggression_probing_tests$test_ID %in% id_remove),]
 # For experiments with the use of 20 F. sanguinea ants introduced into arena around F. fusca nest
 # T - within territory, B - beyond territory
 # Colonies are classified according to the maximal number of aggressive ants exceeding
@@ -134,7 +135,7 @@ Create diagnostic plots with the use of DHARMa package
 plot(simulateResiduals(logistic.model.res, n = 1000))
 ```
 
-# Factors influencing the maximal number of F. fusca ants on the arena
+# Factors influencing maximial number of F. fusca ants on the arena
 ```{r eval = FALSE}
 set.seed(1001)
 max_activ_data <- data.frame()
@@ -160,6 +161,7 @@ for (i in seq_len(1E3)){
   names(diagnostic_tests) <- c("testUniformity", "testOutliers", "testDispersion", "testQuantiles")
   max_ac_model_list[[length(max_ac_model_list)]]$glmm_model <- ma_model
   max_ac_model_list[[length(max_ac_model_list)]]$diagnostic_tests <- diagnostic_tests
+  max_ac_model_list[[length(max_ac_model_list)]]$p_val <- summary(ma_model)$coeff[,4]
 }
 # which model pass all diagnostic tests
 max_activ_data <- data.frame()
@@ -187,22 +189,22 @@ p-values of model coefficients for models which passed diagnostic tests
 ```{r eval = FALSE}
 model_p_vals <- data.frame()
 for (i in seq_len(length(max_ac_model_list))){
-  model_p_vals <- rbind(model_p_vals, data.frame(as.list(summary(max_ac_model_list[[i]]$glmm_model)$coeff[,4])))
+  model_p_vals <- rbind(model_p_vals, t(max_ac_model_list[[i]]$p_val))
 }
-p_vals_splitted <- split(model_p_vals, diagnostic_pass) %>% lapply(function(x) apply(x,2,summary))
-p_vals_splitted$'TRUE'
+p_vals_split <- split(model_p_vals, diagnostic_pass) %>% lapply(function(x) apply(x,2,summary))
+p_vals_split$'TRUE'
 ```
 ```{r echo = FALSE}
 model_p_vals <- data.frame()
 for(i in seq_along(max_ac_model_list)){
 model_p_vals <- rbind(model_p_vals, max_ac_model_list[[i]]$p_val) 
 }
-p_vals_splitted <- split(model_p_vals, diagnostic_pass) %>% lapply(function(x) apply(x,2,summary))
-p_vals_splitted$'TRUE'
+p_vals_split <- split(model_p_vals, diagnostic_pass) %>% lapply(function(x) apply(x,2,summary))
+p_vals_split$'TRUE'
 ```
 p-values of model coefficients for the rest of the models
 ```{r}
-p_vals_splitted$'FALSE'
+p_vals_split$'FALSE'
 ```
 # Difference in the head width of foragers from colonies inhabiting wood ant territory and those living elsewhere
 ```{r}
