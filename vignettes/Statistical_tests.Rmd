@@ -18,7 +18,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(fusca.defence)
 # Load data with the results of the aggression test - basic variant
 data("aggression_probing_tests")
-aggression_probing_tests <- aggression_probing_tests[!(aggression_probing_tests$test_ID %in% id_remove),]
 # For experiments with the use of 20 F. sanguinea ants introduced into arena around F. fusca nest
 # T - within territory, B - beyond territory
 # Colonies are classified according to the maximal number of aggressive ants exceeding

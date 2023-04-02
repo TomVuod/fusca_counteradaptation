@@ -148,13 +148,12 @@ model_data$actual_fus_numb2 <- sqrt(model_data$actual_fus_numb + 0)
 model_data$obs <- as.factor(1:nrow(model_data))
 model_data <- filter(model_data, treatment != "sanguinea_20")
 # fit generalized linear model; use log10 transform of the temperature
-mixed.model.activity<-glmer(actual_fus_numb ~ I((temperature)) + (1|colony) + (1|obs)+territory  +
-                              I(log(time_elapsed)) + I(log(aggression_num+2)),
+mixed.model.activity<-glmer(actual_fus_numb ~ I((temperature)) + (1|colony)  +
+                              I(log(time_elapsed)) + I(log(aggression_num+2)) +
+                              aggression_presence + treatment+territory,
                             data=model_data, family = "poisson")
 
 
-mixed.model.activity<-lmer(actual_fus_numb2 ~ temperature + (1|colony) + territory+treatment +
-                              I(log(time_elapsed)) + I(log(aggression_num+1)), data=model_data)
 summary(mixed.model.activity)
 
 set.seed(1010)
@@ -268,7 +267,9 @@ plot(sim_residuals)
 library(lme4)
 library(lmerTest)
 library(DHARMa)
-model_data <-transform_to_single_val(raw_data = aggression_probing_tests, column = "actual_fus_numb")
+model_data <-transform_to_single_val(raw_data = aggression_probing_tests,
+                                     column = "actual_fus_numb",
+                                     mode = 4)
 # treatment sanguinea_20 should be removed due to significantly lower fusca activity
 model_data<-filter(model_data, territory %in% c("B","T"),
                    date > as.Date("2016-12-30"),
@@ -300,5 +301,85 @@ sd_temperature <- sd(model_data$temperature)
 model_data$temperature <- model_data$temperature/sd_temperature
 # fit generalized linear model; use log10 transform of the temperature
 mixed.model.activity<-glmer(actual_fus_numb ~ temperature + (1|colony) + territory +
-                              I(log10(time_elapsed)) + aggression_presence, data=model_data, family="poisson")
+                              I(log10(time_elapsed)) + aggression_presence,
+                            data=model_data, family="poisson")
 summary(mixed.model.activity)
+
+set.seed(1010)
+sim.resid <- simulateResiduals(mixed.model.activity, n = 1000)
+plot(sim.resid)
+
+
+
+# simulate 1e3 models
+set.seed(1001)
+max_activ_data <- data.frame()
+max_ac_model_list <-list()
+aggression_probing_tests <- transform_to_single_val(aggression_probing_tests)
+model_data<-filter(aggression_probing_tests, territory %in% c("B","T"),
+                   date > as.Date("2016-12-30"),
+                   date < as.Date("2020-12-30"),
+                   !is.na(temperature),
+                   treatment!="sanguinea_20")
+aggression_records <- filter(model_data, aggression_num > 0)
+aggression_tests <- unique(aggression_records$test_ID)
+new_dataset<-data.frame()
+for(i in 1:nrow(model_data)){
+  Test = model_data$test_ID[i]
+  interval = model_data$time_elapsed[i]
+  # include experiments with no aggression
+  if (!(Test %in% aggression_records$test_ID)){
+    new_dataset <- rbind(new_dataset, model_data[i,])
+    next
+  }
+  # include experiment part before aggression occurred
+  reference_set <- filter(aggression_records, test_ID == Test)
+  if (all(interval < reference_set$time))
+    new_dataset<-rbind(new_dataset, model_data[i,])
+}
+new_dataset$aggression_presence <- new_dataset$test_ID %in% aggression_tests
+model_data <- new_dataset
+# temperature transformation: center at zero
+model_data$temperature <- model_data$temperature - min(model_data$temperature) + 1
+# temperature transformation: normalize standard deviation
+sd_temperature <- sd(model_data$temperature)
+model_data$temperature <- model_data$temperature/sd_temperature
+
+for (i in seq_len(1E1)){
+  model_data_trial <-transform_to_single_val(raw_data = model_data,
+                                       column = "actual_fus_numb",
+                                       mode = 4)
+
+  # fit generalized linear model; use log10 transform of the temperature
+  ma_model <- try(glmer(actual_fus_numb ~ temperature + (1|colony) + territory +
+                          I(log10(time_elapsed)) + aggression_presence,
+                        data=model_data_trial, family="poisson"))
+  if (class(ma_model)=="try-error"){
+    print("Model error")
+    next
+  }
+  max_ac_model_list[[length(max_ac_model_list)+1]] <- list()
+  sim_residuals <-simulateResiduals(ma_model)
+  diagnostic_tests <- list(testUniformity(sim_residuals, plot = FALSE)$p.value,
+                           testOutliers(sim_residuals, plot = FALSE)$p.value,
+                           testDispersion(sim_residuals, plot = FALSE)$p.value,
+                           testQuantiles(sim_residuals, plot = FALSE)$p.value)
+  names(diagnostic_tests) <- c("testUniformity", "testOutliers", "testDispersion", "testQuantiles")
+  max_ac_model_list[[length(max_ac_model_list)]]$glmm_model <- ma_model
+  max_ac_model_list[[length(max_ac_model_list)]]$diagnostic_tests <- diagnostic_tests
+  max_ac_model_list[[length(max_ac_model_list)]]$p_val <- summary(ma_model)$coeff[,4]
+}
+# which model pass all diagnostic tests
+max_activ_data <- data.frame()
+for(i in seq_along(max_ac_model_list)){
+  max_activ_data <- rbind(max_activ_data, data.frame(c(fixef(max_ac_model_list[[i]]$glmm_model),
+                                                       max_ac_model_list[[i]]$diagnostic_tests)))
+}
+diagnostic_pass <- apply(max_activ_data, 1, function(x) all(x[6:9]>0.05))
+cat(sprintf("Number of models which passed all diagnostic tests: %d\n",
+            sum(diagnostic_pass, na.rm = TRUE)))
+
+
+
+
+
