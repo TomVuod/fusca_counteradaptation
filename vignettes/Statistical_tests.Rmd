@@ -1,6 +1,7 @@
 ---
 title: "Statistical tests"
-output: rmarkdown::html_vignette
+#output: rmarkdown::html_vignette
+output: pdf_document
 author: Tomasz Włodarczyk
 vignette: >
   %\VignetteIndexEntry{Statistical tests}
@@ -11,14 +12,29 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+# Introduction
+This is an R Markdown document showing how the data was analysed using R environment. All the custom
+functions used here along with original data are available through the fusca.defence package
+available from the author's GitHub repository.
+
+# R package installation
+```{r eval = FALSE}
+# install package
+if(!require(devtools)) install.packages("devtools")
+devtools::install_github("TomVuod/fusca_counteradaptation", build_vignette = TRUE)
+```
+```{r message=FALSE, warning=FALSE}
+# load package
+library(fusca.defence)
+```
 
 # Chi-square test of the aggression frequency between colonies nesting within and outside wood ant territory
 
 ```{r message = FALSE}
-library(fusca.defence)
 # Load data with the results of the aggression test - basic variant
 data("aggression_probing_tests")
-# For experiments with the use of 20 F. sanguinea ants introduced into arena around F. fusca nest
+# For experiments with the use of 20 F. sanguinea ants introduced into 
+# arena around F. fusca nest
 # T - within territory, B - beyond territory
 # Colonies are classified according to the maximal number of aggressive ants exceeding
 # threshold number
@@ -29,7 +45,7 @@ chi_sq_test(treatment_ = "sanguinea_20")
 chi_sq_test(treatment_ = "sanguinea_1")
 ```
 
-# Wilcoxon test to examine difference in duration of aggression displayed by agitated F. fusca ants toward alien ant
+# Tests of the difference in duration of aggression displayed by agitated F. fusca ants toward alien ant
 
 ```{r message = FALSE}
 # Load dataset
@@ -40,22 +56,28 @@ agitation_tests_summary <- group_by(agitation_tests, colony, treatment) %>%
   left_join(distinct(select(agitation_tests, colony, territory)))
 # difference in aggression toward F. polyctena between colonies located within and 
 # outside rufa territory
-x<-filter(agitation_tests_summary, treatment=="F. polyctena", territory=="B")$aggression_duration
-y<-filter(agitation_tests_summary, treatment=="F. polyctena", territory=="T")$aggression_duration
+x<-filter(agitation_tests_summary, treatment=="F. polyctena",
+          territory=="B")$aggression_duration
+y<-filter(agitation_tests_summary, treatment=="F. polyctena", 
+          territory=="T")$aggression_duration
 cat(sprintf("Median time of aggression of colonies from within and from outside
 wood ant territory: %f sec., %f sec., respectively", median(y), median(x)))
 wilcox.test(x,y)
 # difference in aggression toward F. sanguinea between colonies located within and 
 # outside rufa territory
-x<-filter(agitation_tests_summary, treatment=="F. sanguinea", territory=="B")$aggression_duration
-y<-filter(agitation_tests_summary, treatment=="F. sanguinea", territory=="T")$aggression_duration
+x<-filter(agitation_tests_summary, treatment=="F. sanguinea", 
+          territory=="B")$aggression_duration
+y<-filter(agitation_tests_summary, treatment=="F. sanguinea", 
+          territory=="T")$aggression_duration
 cat(sprintf("Median time of aggression of colonies from within and from outside
 wood ant territory: %f sec., %f sec., respectively", median(y), median(x)))
 wilcox.test(x,y)
 # difference in aggression toward F. sanguinea and F. polyctena outside territory
-sang_res <- filter(agitation_tests_summary, treatment=="F. sanguinea", territory=="B") %>%
+sang_res <- filter(agitation_tests_summary, 
+                   treatment=="F. sanguinea", territory=="B") %>%
   select(colony, aggression_duration)
-polyctena_res <- filter(agitation_tests_summary, treatment=="F. polyctena", territory=="B") %>%
+polyctena_res <- filter(agitation_tests_summary, 
+                        treatment=="F. polyctena", territory=="B") %>%
   select(colony, aggression_duration)
 res <- left_join(sang_res, polyctena_res, by=c("colony"))
 cat(sprintf("Median time of aggression toward F. polyctena and 
@@ -64,20 +86,68 @@ median(res$aggression_duration.y),
 median(res$aggression_duration.x)))
 wilcox.test(res$aggression_duration.x, res$aggression_duration.y, paired=TRUE)
 ```
+We should also check whether the time lag before ending the base experiment and introduction of alien individual
+to the arena with agitated host workers had an effect of the aggression duration.
+```{r}
+# Prepare the data
+first_treatment_tab <- data.frame()
+second_treatment_tab <- data.frame()
+agitation_tests <- agitation_tests[!is.na(agitation_tests$time),]
+for(colony_ in unique(agitation_tests$colony)){
+  colony_data <- agitation_tests[agitation_tests$colony==colony_,,drop = FALSE]
+  first_observation <- colony_data[which.min(as.numeric(colony_data[["time"]])),,drop = FALSE]
+  base_experiment_data <- dplyr::filter(aggression_probing_tests, colony == colony_)
+  experiment_interval <- first_observation$time - base_experiment_data$time
+  experiment_interval <- experiment_interval[experiment_interval>=0]
+  experiment_interval <- min(experiment_interval)
+  first_treatment <- first_observation$treatment
+  second_treatment <- setdiff(colony_data$treatment, first_treatment)
 
-# Dependence of F. fusca number on the ambient temperature, colony location and experiment duration
+  first_treatment_tab <- rbind(first_treatment_tab,
+                               data.frame(aggression_time = sum(colony_data[colony_data$treatment == first_treatment,"aggression_duration"]),
+                                          treatment = first_treatment,
+                                          colony = colony_,
+                                          time_lag = experiment_interval,
+                                          territory = colony_data$territory[1]))
+  if(length(second_treatment)>0){
+    second_treatment_start <- colony_data %>% filter(treatment != first_treatment) %>%
+      pull(time)
+    second_treatment_start <- second_treatment_start[1]
+    treatment_lag <- second_treatment_start - first_observation$time
+  
+  second_treatment_tab <- rbind(second_treatment_tab,
+                               data.frame(aggression_time = sum(colony_data[colony_data$treatment == second_treatment,"aggression_duration"]),
+                                          treatment = second_treatment,
+                                          colony = colony_,
+                                          time_lag = experiment_interval + treatment_lag,
+                                          territory = first_observation$territory[1]))
+  }
+}
+
+# Make analysis of variance for the first treatments
+res_1 <- aov(aggression_time~treatment + territory + time_lag, data = first_treatment_tab)
+summary(res_1)
+
+# And the same for the second treatment
+res_2 <- aov(aggression_time~treatment + time_lag + territory, data = second_treatment_tab)
+summary(res_2)
+```
+# Dependence of F. fusca number on the ambient temperature, colony location, experiment duration, and later aggression 
 ```{r}
 library(lme4)
 library(lmerTest)
 library(DHARMa)
-model_data <-transform_to_single_val(raw_data = aggression_probing_tests, column = "actual_fus_numb")
+model_data <-transform_to_single_val(raw_data = aggression_probing_tests,
+                                     column = "actual_fus_numb",
+                                     mode = 4)
 # treatment sanguinea_20 should be removed due to significantly lower fusca activity
-model_data<-filter(model_data, territory %in% c("B","T"), 
+model_data<-filter(model_data, territory %in% c("B","T"),
                    date > as.Date("2016-12-30"),
                    date < as.Date("2020-12-30"),
-                   !is.na(temperature), 
+                   !is.na(temperature),
                    treatment!="sanguinea_20")
 aggression_records <- filter(model_data, aggression_num > 0)
+aggression_tests <- unique(aggression_records$test_ID)
 new_dataset<-data.frame()
 for(i in 1:nrow(model_data)){
   Test = model_data$test_ID[i]
@@ -89,9 +159,10 @@ for(i in 1:nrow(model_data)){
   }
   # include experiment part before aggression occurred
   reference_set <- filter(aggression_records, test_ID == Test)
-  if (all(interval < reference_set$time))
+  if (all(interval < reference_set$time_elapsed))
     new_dataset<-rbind(new_dataset, model_data[i,])
 }
+new_dataset$aggression_presence <- new_dataset$test_ID %in% aggression_tests
 model_data <- new_dataset
 # temperature transformation: center at zero
 model_data$temperature <- model_data$temperature - min(model_data$temperature) + 1
@@ -100,7 +171,8 @@ sd_temperature <- sd(model_data$temperature)
 model_data$temperature <- model_data$temperature/sd_temperature
 # fit generalized linear model; use log10 transform of the temperature
 mixed.model.activity<-glmer(actual_fus_numb ~ temperature + (1|colony) + territory +
-                          I(log10(time_elapsed)), data=model_data, family="poisson")
+                          I(log10(time_elapsed)) + aggression_presence
+                          , data=model_data, family="poisson")
 summary(mixed.model.activity)
 ```
 
@@ -119,7 +191,9 @@ exp(temp.effect)
 # Logistic model for the probability of F. sanguinea being attacked by F. fusca colony
 ```{r}
 # compare treatments with the use of 1 nad 20 F. sanguinea workers
-logistic.model.res <- filter(aggression_probing_tests, date>as.Date("2019-01-01"), territory %in% (c("B", "T"))) %>%
+logistic.model.res <- filter(aggression_probing_tests, 
+                             date>as.Date("2019-01-01"), 
+                             territory %in% (c("B", "T"))) %>%
   transform_to_single_val() %>% 
   split(.$test_ID) %>%
   purrr::map(process_test_data) %>%
@@ -140,13 +214,16 @@ set.seed(1001)
 max_activ_data <- data.frame()
 max_ac_model_list <-list()
 for (i in seq_len(1E3)){
-  sample_data <- aggression_probing_tests %>% 
+  if(i%%10 == 0) print(i)
+  sample_data <- aggression_probing_tests %>%
     filter(date > as.Date("2019-01-01")) %>%
-    transform_to_single_val(column = "actual_fus_numb", mode = 4) %>% # select random fusca number from observed range
-    group_by(territory, treatment, colony, date) %>% 
-    summarise(max_activity = max(na.omit(actual_fus_numb)))
+    transform_to_single_val(column = "actual_fus_numb", mode = 4) %>% 
+    # select random fusca number from observed range
+    transform_to_single_val(mode = 4) %>%
+    group_by(territory, treatment, colony, date) %>%
+    summarise(max_activity = max(na.omit(actual_fus_numb + aggression_num)))
   ma_model <- try(glmer(max_activity ~ treatment * territory + (1|colony),
-                    data = sample_data, family = poisson(link="log")))
+                        data = sample_data, family = poisson(link="log")))
   if (class(ma_model)=="try-error"){
     print("Model error")
     next
@@ -157,7 +234,8 @@ for (i in seq_len(1E3)){
                            testOutliers(sim_residuals, plot = FALSE)$p.value,
                            testDispersion(sim_residuals, plot = FALSE)$p.value,
                            testQuantiles(sim_residuals, plot = FALSE)$p.value)
-  names(diagnostic_tests) <- c("testUniformity", "testOutliers", "testDispersion", "testQuantiles")
+  names(diagnostic_tests) <- c("testUniformity", "testOutliers", "testDispersion", 
+                               "testQuantiles")
   max_ac_model_list[[length(max_ac_model_list)]]$glmm_model <- ma_model
   max_ac_model_list[[length(max_ac_model_list)]]$diagnostic_tests <- diagnostic_tests
   max_ac_model_list[[length(max_ac_model_list)]]$p_val <- summary(ma_model)$coeff[,4]
@@ -165,7 +243,8 @@ for (i in seq_len(1E3)){
 # which model pass all diagnostic tests
 max_activ_data <- data.frame()
 for(i in seq_along(max_ac_model_list)){
-  max_activ_data <- rbind(max_activ_data, data.frame(c(fixef(max_ac_model_list[[i]]$glmm_model), 
+  max_activ_data <- rbind(max_activ_data, 
+                          data.frame(c(fixef(max_ac_model_list[[i]]$glmm_model), 
                                                        max_ac_model_list[[i]]$diagnostic_tests)))
 }
 diagnostic_pass <- apply(max_activ_data, 1, function(x) all(x[5:8]>0.05))
@@ -176,35 +255,33 @@ cat(sprintf("Number of models which passed all diagnostic tests: %d\n",
 max_activ_data <- data.frame()
 max_ac_model_list <- fusca.defence:::max_ac_model_list
 for(i in seq_along(max_ac_model_list)){
-  max_activ_data <- rbind(max_activ_data, data.frame(c(fixef(max_ac_model_list[[i]]$glmm_model), 
+  max_activ_data <- rbind(max_activ_data, 
+                          data.frame(c(fixef(max_ac_model_list[[i]]$glmm_model), 
                                                        max_ac_model_list[[i]]$diagnostic_tests)))
 }
 # which model pass all diagnostic tests
 diagnostic_pass <- apply(max_activ_data, 1, function(x) all(x[5:8]>0.05))
 cat(sprintf("Number of models which passed all diagnostic tests: %d\n", 
             sum(diagnostic_pass, na.rm = TRUE)))
+
+max_activ_data_passed <- max_activ_data[diagnostic_pass,]
+max_activ_data_failed <- max_activ_data[!diagnostic_pass,]
 ```
-p-values of model coefficients for models which passed diagnostic tests
-```{r eval = FALSE}
-model_p_vals <- data.frame()
-for (i in seq_len(length(max_ac_model_list))){
-  model_p_vals <- rbind(model_p_vals, t(max_ac_model_list[[i]]$p_val))
-}
-p_vals_split <- split(model_p_vals, diagnostic_pass) %>% lapply(function(x) apply(x,2,summary))
-p_vals_split$'TRUE'
+```{r fig.height=5, fig.width=8}
+par(cex.axis = 0.7)
+boxplot(max_activ_data_passed[,1:4], main = "Distribution of coefficients of models\nwhich passed diagnostic tests")
 ```
-```{r echo = FALSE}
-model_p_vals <- data.frame()
-for(i in seq_along(max_ac_model_list)){
-model_p_vals <- rbind(model_p_vals, max_ac_model_list[[i]]$p_val) 
-}
-p_vals_split <- split(model_p_vals, diagnostic_pass) %>% lapply(function(x) apply(x,2,summary))
-p_vals_split$'TRUE'
+&nbsp;
+&nbsp;
+&nbsp;
+```{r fig.height=5, fig.width=8}
+par(cex.axis = 0.7)
+boxplot(max_activ_data_failed[,1:4], main = "Distribution of coefficients of models\nwhich did not pass diagnostic tests")
 ```
-p-values of model coefficients for the rest of the models
-```{r}
-p_vals_split$'FALSE'
-```
+&nbsp;
+&nbsp;
+&nbsp;
+
 # Difference in the head width of foragers from colonies inhabiting wood ant territory and those living elsewhere
 ```{r}
 data(head_width)
@@ -216,7 +293,28 @@ t.test.data <- filter(aggression_probing_tests, territory %in% c("T","B")) %>%
   distinct()
 x <- filter(t.test.data,territory=="T") %>% pull(mean)
 y <- filter(t.test.data,territory=="B") %>% pull(mean)
-cat(sprintf("Mead head width of foragers from wood ant territory: %.2f μm", mean(x, na.rm = TRUE)))
-cat(sprintf("Mead head width of foragers from outside wood ant territory: %.2f μm", mean(y, na.rm = TRUE)))
+cat(sprintf("Mead head width of foragers from wood ant territory: %.3f mm", 
+            round(mean(x, na.rm = TRUE)/1000,digits=3)))
+cat(sprintf("Mead head width of foragers from outside wood ant territory: %.3f mm", 
+            round(mean(y, na.rm = TRUE)/1000, digits = 3)))
 t.test(x,y)
+```
+
+# Non-aggressive F. fusca number in treatemnt with the use of 1 F. rufa or 1 F. sanguinea individual
+
+```{r}
+activity_rufa <- filter(aggression_probing_tests, treatment == "rufa") %>%
+  transform_to_single_val(column = "actual_fus_numb",mode = 1) %>%
+  group_by(colony) %>% summarize(activity = max(actual_fus_numb))
+
+activity_sanguinea <- filter(aggression_probing_tests, treatment == "sanguinea_1") %>%
+  transform_to_single_val(column = "actual_fus_numb",mode = 2) %>%
+  group_by(colony) %>% summarize(activity = max(actual_fus_numb))
+
+both_treatments_col <- intersect(activity_rufa$colony, activity_sanguinea$colony)
+
+activity_rufa <- activity_rufa[match(both_treatments_col, activity_rufa$colony),]
+activity_sanguinea <- activity_sanguinea[match(both_treatments_col, 
+                                               activity_sanguinea$colony),]
+wilcox.test(activity_rufa$activity, activity_sanguinea$activity, paired = TRUE)
 ```
