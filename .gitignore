@@ -3,3 +3,4 @@ inst/doc
 vignettes/*.png
 R/no_activity_tests.R
 .Rhistory
+analysis/*
