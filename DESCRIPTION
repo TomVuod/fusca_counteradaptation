@@ -16,7 +16,7 @@ Imports:
     lme4,
     lmerTest,
     DHARMa,
-    ggplot2
+    ggplot2,
     purrr,
     forcats,
     stringi,
