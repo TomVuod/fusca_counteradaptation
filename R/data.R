@@ -58,7 +58,7 @@
 #' @format The data frame consists of the following columns:
 #'   \describe{
 #'     \item{secies} {ant species}
-#'     \item{colony}{ID of s colony}
+#'     \item{colony}{ID of a colony}
 #'     \item{latitude}{Latitude coordinate of the colony location}
 #'     \item{longitude}{Longitude coordinate of the colony location}
 #'     }
