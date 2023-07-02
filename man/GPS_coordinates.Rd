@@ -7,7 +7,8 @@
 \format{
 The data frame consists of the following columns:
 \describe{
-\item{colony}{ID of F. fusca colony}
+\item{secies} {ant species}
+\item{colony}{ID of s colony}
 \item{latitude}{Latitude coordinate of the colony location}
 \item{longitude}{Longitude coordinate of the colony location}
 }
