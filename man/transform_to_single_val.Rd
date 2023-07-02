@@ -4,7 +4,11 @@
 \alias{transform_to_single_val}
 \title{Change data frame by transforming ranges to single values in the specified column}
 \usage{
-transform_to_single_val(raw_data = NULL, column = "aggression_num", mode = 1)
+transform_to_single_val(
+  raw_data = NULL,
+  column = "aggression_num",
+  mode = "min"
+)
 }
 \arguments{
 \item{raw_data}{A data frame with source data for the analysis}
