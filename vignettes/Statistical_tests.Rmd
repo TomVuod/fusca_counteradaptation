@@ -41,7 +41,7 @@ data("aggression_probing_tests")
 # For experiments with the use of 20 F. sanguinea ants introduced into 
 # arena around F. fusca nest
 # T - within territory, B - beyond territory
-# Colonies are classified according to the maximal number of aggressive ants exceeding
+# Colonies are classified as aggressive depending on whether they passed the threshold (zero by default) for the number of aggressive ants in arena at any time during the test
 # threshold number
 chi_sq_test(treatment_ = "sanguinea_20")
 ```
@@ -97,7 +97,7 @@ to the arena with agitated host workers had an effect of the aggression duration
 # Prepare the data
 first_treatment_tab <- data.frame()
 second_treatment_tab <- data.frame()
-# remove colony with unknown start time
+# remove colony with unknown experiment start time
 agitation_tests <- agitation_tests[!is.na(agitation_tests$time),]
 # loop over each studied colony (each colony was examined once)
 for(colony_ in unique(agitation_tests$colony)){
@@ -156,7 +156,8 @@ library(DHARMa)
 model_data <-transform_to_single_val(raw_data = aggression_probing_tests,
                                      column = "actual_fus_numb",
                                      mode = "mean")
-# treatment sanguinea_20 should be removed due to significantly lower fusca activity
+# treatment sanguinea_20 should be removed due to the hgh impact of such a large number of alien
+# ants of F. fusca activity
 model_data<-filter(model_data, territory %in% c("B","T"),
                    date > as.Date("2016-12-30"),
                    date < as.Date("2020-12-30"),
@@ -224,7 +225,7 @@ Create diagnostic plots with the use of DHARMa package
 plot(simulateResiduals(logistic.model.res, n = 1000))
 ```
 
-# Factors influencing maximial number of F. fusca ants on the arena
+# Factors influencing maximum number of F. fusca ants on the arena
 ```{r eval = FALSE}
 set.seed(1001)
 max_activ_data <- data.frame()
