@@ -1,10 +1,10 @@
 Package: fusca.defence
-Title: The package contains data collected for the research project 
-Version: 0.0.0.9000
+Title: The package contains supplementary materials for the research project 
+Version: 0.0.0.9001
 Authors@R: 
     person("Tomasz", "Włodarczyk", , "tomwlo@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-1554-9699"))
-Description: The package contains materials supporting the publication entitled "Impact of dominant competitor on the aggressiveness of the host ants toward slave-makers". The raw data from the experiments are provided along with functions leading to the results of statistical analyses presented in the publication. The vignette guides the user through the workflow, enabling replication of the results included in the publication.
+Description: The package contains materials supporting the publication entitled "Impact of the dominant competitor on the aggressiveness of host ants toward slave-makers". The raw data from the experiments are provided along with functions leading to the results of statistical analyses presented in the publication. The vignette guides the user through the workflow, enabling replication of the results included in the publication.
 License: GPL (>= 3) 
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
