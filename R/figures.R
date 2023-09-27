@@ -48,13 +48,15 @@ generate_fig3 <- function(){
 #' Generate figure 4
 #' @export
 generate_fig4 <- function(){
+  set.seed(1010)
   data("agitation_tests", envir = environment())
   agitation_tests_summary <- group_by(agitation_tests, .data$colony, .data$treatment) %>%
     summarise(aggression_duration = sum(.data$aggression_duration)) %>%
     left_join(distinct(select(agitation_tests, .data$colony, .data$territory)))
   theme_set(theme_bw())
   ggplot(agitation_tests_summary, aes(y = .data$aggression_duration)) +
-    geom_boxplot(aes(x = as.factor(.data$territory))) +
+    geom_boxplot(aes(x = as.factor(.data$territory)), outlier.colour = rgb(0,0,0,0)) +
+    geom_jitter(aes(x = as.factor(.data$territory)), width = 0.2) +
     scale_x_discrete(labels = c("Outside", "Inside")) +
     ylab("Aggression duration [sec]") +
     xlab("Colony location relative to F. rufa territory") +

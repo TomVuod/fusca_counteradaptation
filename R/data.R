@@ -1,3 +1,5 @@
+#' Results of the basic behavioural tests
+#'
 #' A data frame with the results of behavioural tests in which one or 20 alien ants were placed
 #' into the arena around F. fusca nest
 #'
@@ -23,6 +25,8 @@
 "aggression_probing_tests"
 
 
+#' Results of the behavioural test with agitated ants
+#'
 #' A data frame with the regults of the behavioural tests in which alien ant was placed
 #' into the arena with numerous already agitated F. fusca ants
 #'
@@ -44,20 +48,26 @@
 #'     \item{alien_colony_ID}{ID of the colony from which alien ants introduced into arena were collected}
 #'     }
 "agitation_tests"
+
+#' F. fusca head width
+#'
 #' A data frame with the results of measurement of head width of F. fusca foragers
 #'
-#'  @format The data frame consists of the following columns:
+#' @format The data frame consists of the following columns:
 #'  \describe{
 #'    \item{colony}{Colony ID}
 #'    \item{head_width}{Head width of a single worker in micrometers}
 #'  }
 "head_width"
 
+#' Study site
+#'
 #' A data frame with coordinates of the colonies used in the study
 #'
 #' @format The data frame consists of the following columns:
 #'   \describe{
-#'     \item{colony}{ID of F. fusca colony}
+#'     \item{secies} {ant species}
+#'     \item{colony}{ID of a colony}
 #'     \item{latitude}{Latitude coordinate of the colony location}
 #'     \item{longitude}{Longitude coordinate of the colony location}
 #'     }

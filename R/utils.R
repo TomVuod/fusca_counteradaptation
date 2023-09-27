@@ -5,13 +5,12 @@
 #' 1 - minimum, 2 - maximum, 3 - mean, 4 - random.
 #' @returns A data frame with transformed variable
 #' @export
-transform_to_single_val <- function(raw_data = NULL, column="aggression_num", mode=1){
+transform_to_single_val <- function(raw_data = NULL, column="aggression_num", mode="min"){
   if(is.null(raw_data)) {
     data("aggression_probing_tests", envir = environment())
     raw_data <- aggression_probing_tests
   }
-  fun_list=list(min,max,mean,select_from_range)
-  raw_data[,column] <- mapply(function(x) fun_list[[mode]](get_extremes(x)),raw_data[,column])
+  raw_data[,column] <- mapply(function(x) get(mode)(get_extremes(x)),raw_data[,column])
   raw_data[,column] <- as.numeric(as.character(raw_data[,column]))
   raw_data
 }
@@ -22,7 +21,7 @@ get_extremes<-function(x){
 }
 
 # select random value from a given range
-select_from_range<-function(x){
+random_select_from_range<-function(x){
   x_len=length(x)
   if(x_len==1) return(x)
   if(x_len!=2) stop(sprintf("Vaules vector should be of length one or two but is %s", x_len))
