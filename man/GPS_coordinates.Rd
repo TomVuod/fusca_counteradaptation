@@ -3,11 +3,11 @@
 \docType{data}
 \name{GPS_coordinates}
 \alias{GPS_coordinates}
-\title{A data frame with coordinates of the colonies used in the study}
+\title{Study site}
 \format{
 The data frame consists of the following columns:
 \describe{
-\item{secies} {ant species}
+\item{secies}{ant species}
 \item{colony}{ID of a colony}
 \item{latitude}{Latitude coordinate of the colony location}
 \item{longitude}{Longitude coordinate of the colony location}

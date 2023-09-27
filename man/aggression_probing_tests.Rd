@@ -3,8 +3,7 @@
 \docType{data}
 \name{aggression_probing_tests}
 \alias{aggression_probing_tests}
-\title{A data frame with the results of behavioural tests in which one or 20 alien ants were placed
-into the arena around F. fusca nest}
+\title{Results of the basic behavioural tests}
 \format{
 The data frame consists of the following columns:
 \describe{

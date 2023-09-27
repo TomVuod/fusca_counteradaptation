@@ -3,18 +3,18 @@
 \docType{data}
 \name{head_width}
 \alias{head_width}
-\title{A data frame with the results of measurement of head width of F. fusca foragers}
+\title{F. fusca head width}
 \format{
-An object of class \code{data.frame} with 1025 rows and 2 columns.
+The data frame consists of the following columns:
+\describe{
+\item{colony}{Colony ID}
+\item{head_width}{Head width of a single worker in micrometers}
+}
 }
 \usage{
 head_width
 }
 \description{
-@format The data frame consists of the following columns:
-\describe{
-\item{colony}{Colony ID}
-\item{head_width}{Head width of a single worker in micrometers}
-}
+A data frame with the results of measurement of head width of F. fusca foragers
 }
 \keyword{datasets}
