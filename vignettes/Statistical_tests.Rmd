@@ -13,9 +13,7 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 ```
 # Introduction
-This is an R Markdown document showing how the data was analysed using R environment. All the custom
-functions used here along with original data are available through the fusca.defence package
-available from the author's GitHub repository.
+This is an R Markdown document showing how the data was analysed using R environment. All the customfunctions used here along with original data are available through the fusca.defence package available from the author's GitHub repository.
 
 # R package installation
 ```{r eval = FALSE}
@@ -229,11 +227,11 @@ plot(simulateResiduals(logistic.model.res, n = 1000))
 ```{r eval = FALSE}
 set.seed(1001)
 max_activ_data <- data.frame()
+# create list to store model runs results
 max_ac_model_list <-list()
 for (i in seq_len(1E3)){
-  if(i%%10 == 0) print(i)
   sample_data <- aggression_probing_tests %>%
-    filter(date > as.Date("2019-01-01")) %>%
+    filter(date > as.Date("2019-01-01")) %>% # use data collected in the second set of experiments
     transform_to_single_val(column = "actual_fus_numb", mode = "random_select_from_range") %>% 
     # select random fusca number from observed range
     transform_to_single_val(mode = "random_select_from_range") %>%
@@ -246,6 +244,7 @@ for (i in seq_len(1E3)){
     next
   }
   max_ac_model_list[[length(max_ac_model_list)+1]] <- list()
+  # make model diagnostics
   sim_residuals <-simulateResiduals(ma_model)
   diagnostic_tests <- list(testUniformity(sim_residuals, plot = FALSE)$p.value,
                            testOutliers(sim_residuals, plot = FALSE)$p.value,
@@ -308,8 +307,8 @@ t.test.data <- filter(aggression_probing_tests, territory %in% c("T","B")) %>%
   left_join(hw_summary) %>% 
   select(colony,territory,mean) %>% 
   distinct()
-x <- filter(t.test.data,territory=="T") %>% pull(mean)
-y <- filter(t.test.data,territory=="B") %>% pull(mean)
+x <- filter(t.test.data, territory=="T") %>% pull(mean)
+y <- filter(t.test.data, territory=="B") %>% pull(mean)
 cat(sprintf("Mead head width of foragers from wood ant territory: %.3f mm", 
             round(mean(x, na.rm = TRUE)/1000,digits=3)))
 cat(sprintf("Mead head width of foragers from outside wood ant territory: %.3f mm", 
@@ -320,16 +319,22 @@ t.test(x,y)
 # Non-aggressive *F. fusca* number in treatemnt with the use of 1 *F. rufa* or 1 *F. sanguinea* individual
 
 ```{r}
+# use the upper bound of the F. fusca number for the tretment with F. rufa (to make it
+# harder to reject the null hypothesis)
 activity_rufa <- filter(aggression_probing_tests, treatment == "rufa") %>%
-  transform_to_single_val(column = "actual_fus_numb",mode = "min") %>%
-  group_by(colony) %>% summarize(activity = max(actual_fus_numb))
-
-activity_sanguinea <- filter(aggression_probing_tests, treatment == "sanguinea_1") %>%
   transform_to_single_val(column = "actual_fus_numb",mode = "max") %>%
   group_by(colony) %>% summarize(activity = max(actual_fus_numb))
 
+# use the lower bound of the F. fusca number for the tretment with F. rufa (to make it
+# harder to reject the null hypothesis)
+activity_sanguinea <- filter(aggression_probing_tests, treatment == "sanguinea_1") %>%
+  transform_to_single_val(column = "actual_fus_numb",mode = "min") %>%
+  group_by(colony) %>% summarize(activity = max(actual_fus_numb))
+
+# use colonies in which both treatments were applied
 both_treatments_col <- intersect(activity_rufa$colony, activity_sanguinea$colony)
 
+# order results according to `both_treatments_col`
 activity_rufa <- activity_rufa[match(both_treatments_col, activity_rufa$colony),]
 activity_sanguinea <- activity_sanguinea[match(both_treatments_col, 
                                                activity_sanguinea$colony),]

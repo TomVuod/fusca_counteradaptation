@@ -3,8 +3,7 @@
 \docType{data}
 \name{agitation_tests}
 \alias{agitation_tests}
-\title{A data frame with the regults of the behavioural tests in which alien ant was placed
-into the arena with numerous already agitated F. fusca ants}
+\title{Results of the behavioural test with agitated ants}
 \format{
 The data frame consists of the following columns:
 \describe{
