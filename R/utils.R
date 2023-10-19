@@ -76,7 +76,7 @@ hitherto_number <- function(test_id = NA, time_limit = 10, column = "aggression_
 #' statistical comparison
 #' @param duration A numeric indicating the number of minutes from the experiment begin
 #' to be considered when determining aggression occurrence.
-#' @param threshold_number A numeric indicating the minimal number of ants being
+#' @param threshold_number A numeric indicating the minimum number of ants being
 #' aggressive above which the test is classified as showing aggression
 #' @param raw_data A data frame with source data for the analysis
 #' @param ... Other arguments passed to `transform_to_single_val` function
