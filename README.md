@@ -1,4 +1,6 @@
-This is the R package created as supplementary material to the manuscript entitled "Impact of dominant competitor on the aggressiveness of the host ants toward slave-makers"
+This is the R package created as supplementary material to the following publication:
+Włodarczyk T. (2023). Impact of the dominant competitor on the aggressiveness host ants toward slave-makers. Behaviour 160: 911-933.
+
 # Usage
 Install package
 ```
